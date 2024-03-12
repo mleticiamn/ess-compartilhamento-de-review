@@ -29,6 +29,9 @@ import ReviewPage from './routes/reviews/ReviewPage'
 import ReviewsRestaurant from './routes/reviews/ReviewsRestaurant'
 import ReviewsUser from './routes/reviews/ReviewsUser'
 
+import ListCreate from './routes/lists/ListCreate';
+import MyLists from './routes/lists/Mylists';
+
 const router = createBrowserRouter([
   {
     path:"/",
@@ -111,6 +114,14 @@ const router = createBrowserRouter([
         path: "/reviews/:iduser",
         element: <ReviewsUser /> 
       },
+      {
+        path: "/lists/create",
+        element: <ListCreate />,
+      },
+      {
+        path: "/lists",
+        element: <MyLists/>
+      },
     ]
   },
   {
@@ -127,7 +138,7 @@ const router = createBrowserRouter([
     path: "/signup",
     errorElement: <ErrorPage />,
     element: <Signup />
-  }
+  },
 ])
 
 
