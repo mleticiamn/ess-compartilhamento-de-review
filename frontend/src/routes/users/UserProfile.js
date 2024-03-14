@@ -1,9 +1,10 @@
 import { useParams, Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
-import ProfileImage from "../images/noprofileimage.png"
-import CoverImage from "../images/nocoverimage.png"
+import ProfileImage from "../../images/noprofileimage.png"
+import CoverImage from "../../images/nocoverimage.png"
+import ModalFollow from "./followers/ModalFollow.js"
 
-import '../style/UserProfile.css'
+import '../../style/UserProfile.css'
 
 const API_BASE = "http://localhost:3001"
 
@@ -14,7 +15,7 @@ function getUserIdFromToken() {
     try {
         const payload = token.split('.')[1];
         const decodedPayload = JSON.parse(atob(payload));
-        return decodedPayload.userId; // Ensure this matches your JWT payload
+        return decodedPayload.userId;
     } catch (error) {
         console.error('Error decoding token:', error);
         return null;
@@ -29,14 +30,20 @@ const UserProfile = () => {
     const [currentUser, setCurrentUser] = useState(null)
     const [user, setUser] = useState(null);
     const { id } = useParams()
-    const [error, setError] = useState(null)
-    console.log(currentUser);
+
+    const [error, setError] = useState(null)    
+    const [modalFollow, setModalFollow] = useState(false)
+    const [modalUnfollow, setModalUnfollow] = useState(false)
+
     useEffect(() => {
         fetch( API_BASE + '/users/' + id)
             .then(response => {
                 response.json().then(data => {
                     setUser(data)
                 })
+            }).catch(err => {
+                console.error("Error: ", err);
+                setError(err.message);
             }).then(fetch( API_BASE + '/users/' + currentUserId)
             .then(response => {
                 response.json().then(data => {
@@ -55,7 +62,13 @@ const UserProfile = () => {
             headers: {
                 'Content-Type': 'application/json',
             }})
-            .then(response => response.ok.then(window.location.reload(false)))
+            .then(response => { if (response.ok)
+                setModalFollow(true); 
+                setTimeout(() => {
+                    setModalFollow(false);
+                    window.location.reload(false)}, 
+                    3000)
+                })
             .catch(err => {
                     console.error("Error: ", err);
                     setError(err.message);
@@ -70,7 +83,13 @@ const UserProfile = () => {
             headers: {
                 'Content-Type': 'application/json',
             }})
-            .then(response => response.ok.then(window.location.reload(false)))
+            .then(response => { if (response.ok)
+                setModalUnfollow(true); 
+                setTimeout(() => {
+                    setModalUnfollow(false);
+                    window.location.reload(false)}, 
+                    3000)
+                })
             .catch(err => {
                     console.error("Error: ", err);
                     setError(err.message);
@@ -81,10 +100,11 @@ const UserProfile = () => {
 
     const check1 = user && user.profileImage;
     const check2 = user && user.coverImage;
-    const check3 = user && (currentUserId === id)
 
     return (user && currentUser ? (
             <div class="tudinho">
+                {modalFollow && <ModalFollow closeModal={setModalFollow} body={"Seguiu com sucesso. Uma mensagem foi enviada para o usuário!"}/>}
+                {modalUnfollow && <ModalFollow closeModal={setModalUnfollow} body={"Deixou de seguir com sucesso!"}/>}
                 <div class="containerProfile">
                     <div class="coverImageContainer">
                         {check2 ? (
@@ -102,26 +122,26 @@ const UserProfile = () => {
                             )}
                         </div>
                         <div class="profileInfo">
-                            <p class="nameuser">{user.name}</p>
+                            <p className="nameuser">{user.name}</p>
                             <p class="biouser">{user.bio}</p>
                             <div class="followuser">
-                                <Link class="followersuser" to={`/users/followers/${id}`}>
+                                <Link class="followersuser" to={`/users/followers/${id}`} data-cy="num-seguidores">
                                     {user.followers.length ?? 0} SEGUIDORES
                                 </Link>
-                                <Link class="followinguser" to={`/users/following/${id}`}>
+                                <Link class="followinguser" to={`/users/following/${id}`} data-cy="num-seguindo">
                                     {user.following.length ?? 0} SEGUINDO
                                 </Link> 
                             </div>
                         </div>
                         <div className="followbutton">
                             
-                                {!check3 ? (
+                                {(currentUser._id !== id) ? (
                         
                                     ((currentUser.following) ? 
                                     
                                         (!currentUser.following.includes(id) ? (
                                             
-                                            <Link className="link-follow" onClick={(e) => {follow(id, e)}}>
+                                            <Link className="link-follow" data-cy="seguir-profile" onClick={(e) => {follow(id, e)}}>
                                                 <div className="follow-button-user-page">
                                                     <p>Seguir</p>
                                                 </div>
@@ -129,7 +149,7 @@ const UserProfile = () => {
                                             
                                             ) : (
                                             
-                                            <Link className="link-follow" onClick={(e) => {unfollow(id, e)}}>
+                                            <Link className="link-follow" data-cy="deixar-de-seguir-profile" onClick={(e) => {unfollow(id, e)}}>
                                                 <div className="unfollow-button-user-page">
                                                     <p>Deixar de seguir</p>
                                                 </div>
@@ -151,7 +171,7 @@ const UserProfile = () => {
                 </div>
                 <div class="buttonsuserprofile" >
                     <button class="buttonreviews"> REVIEWS </button>
-                    {check3 ? (
+                    {!(currentUser._id !== id) ? (
                         <button class="buttonedit" onClick={() => navigate("/users/edit/" + id)}></button>
                     ) : null
                     }

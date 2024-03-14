@@ -9,14 +9,14 @@ import RestaurantProfile from './routes/restaurants/RestaurantProfile'
 import RestaurantCreate from './routes/restaurants/RestaurantCreate'
 import RestaurantUpdate from './routes/restaurants/RestaurantUpdate'
 import ErrorPage from './routes/ErrorPage'
-import UserProfile from './routes/UserProfile'
-import FollowersList from './routes/FollowersList'
-import FollowingList from './routes/FollowingList' 
+import UserProfile from './routes/users/UserProfile'
+import UserEdit from './routes/users/UserEdit'
+import FollowList from './routes/users/followers/FollowList' 
 
 import LandingPage from './routes/landingpage/LandingPage'
 import Login from './routes/login/login'
 import Signup from './routes/signup/Signup'
-import UserEdit from './routes/UserEdit';
+
 
 import Feed from './routes/feed/Feed'
 import SearchResult from './routes/search/SearchResult'
@@ -60,11 +60,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/users/followers/:id",
-        element: <FollowersList />
+        element: <FollowList followers = {true}/>
       },
       {
         path: "/users/following/:id",
-        element: <FollowingList />
+        element: <FollowList followers = {false}/>
       },
       {
         path: "/feed",
@@ -77,14 +77,6 @@ const router = createBrowserRouter([
       {
         path: "/users/:id",
         element: <UserProfile />,
-      },
-      {
-        path: "/users/followers/:id",
-        element: <FollowersList />
-      },
-      {
-        path: "/users/following/:id",
-        element: <FollowingList />
       },
       {
         path: "/users/edit/:id",
